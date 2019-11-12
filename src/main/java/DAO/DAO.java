@@ -1,27 +1,32 @@
+package DAO;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
 
+import DAO.DAOException;
 import java.sql.Connection;
+import DAO.DISCOUNTIDENTITY;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sql.DataSource;
 
-package DAO;
-
 /**
  *
  * @author pedago
  */
 public class DAO {
+
+    private final DataSource myDataSource;
     
     public DAO(DataSource dataSource) {
         this.myDataSource = dataSource;
@@ -65,5 +70,28 @@ public class DAO {
 			throw new DAOException(ex.getMessage());
 		}
         }
-    
+     
+      public ArrayList<DISCOUNTIDENTITY> parcour() throws DAOException{
+           ArrayList<DISCOUNTIDENTITY> code= new  ArrayList<DISCOUNTIDENTITY>() ;
+       
+           String sql = "SELECT * FROM DISCOUNT_CODE ";
+           try (Connection connection = myDataSource.getConnection(); // On crée un statement pour exécuter une requête
+			PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+		
+			try (ResultSet rs = stmt.executeQuery()) {
+				if (rs.next()) { // On a trouvé
+					String name = rs.getString("DISCOUNT_CODE");
+					float address = rs.getFloat("RATE");
+					// On crée l'objet "entity"
+					 
+                                        code.add(new DISCOUNTIDENTITY(name, address));
+				} // else on n'a pas trouvé, on renverra null
+			}
+		}  catch (SQLException ex) {
+			Logger.getLogger("DAO").log(Level.SEVERE, null, ex);
+			throw new DAOException(ex.getMessage());
+		}
+           return code ;
+       }
 }
